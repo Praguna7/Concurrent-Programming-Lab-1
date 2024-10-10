@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <time.h>
 #include <sys/time.h>
-#include <stdatomic.h>
 #include <math.h>
 #include "rw_lock.h"
 #include "serial.h"
@@ -17,64 +16,64 @@ void thread_func_mutex(void* args){
     struct list_node_s **head = t_args->head;
     operation_limits *op_limits = t_args->op_limits;
 
-    int thread_id = pthread_self(); 
-    srand(time(0)+thread_id); // Use current time + thread id as random seed
+    srand(time(0) + (unsigned int) pthread_self());  // Seed random number generation for each thread
+    
+    // Per-thread counters
+    int total_ops_count = 0;
+    int ins_ops_count = 0;
+    int mem_ops_count = 0;
+    int del_ops_count = 0;
 
     int operation;
     int rand_val;
 
-    while (atomic_load(&op_limits->total_ops_count) < op_limits->total_ops_limit)
+    while (total_ops_count < op_limits->total_ops_limit)
     {
         operation = rand()%3;
         rand_val = rand()%MAX_VALUE;
 
-        if(operation==0 && atomic_load(&(op_limits->ins_ops_count)) < op_limits->ins_ops_limit){
+        if(operation==0 && ins_ops_count < op_limits->ins_ops_limit){
 
             pthread_mutex_lock(&mutex_lock);
             Insert(rand_val,head);
             pthread_mutex_unlock(&mutex_lock);
 
-            atomic_fetch_add(&(op_limits->ins_ops_count),1);
-            atomic_fetch_add(&(op_limits->total_ops_count),1);
+            ins_ops_count++;
+            total_ops_count++;
         }
-        else if(operation==1 && atomic_load(&(op_limits->mem_ops_count)) < op_limits->mem_ops_limit){
+        else if(operation==1 && mem_ops_count < op_limits->mem_ops_limit){
 
             pthread_mutex_lock(&mutex_lock);
             Member(rand_val,*head);
             pthread_mutex_unlock(&mutex_lock);
 
-            atomic_fetch_add(&(op_limits->mem_ops_count),1);
-            atomic_fetch_add(&(op_limits->total_ops_count),1);
-        }
+            mem_ops_count++;
+            total_ops_count++;        }
 
-        else if(operation==2 && atomic_load(&(op_limits->del_ops_count)) < op_limits->del_ops_limit){
+        else if(operation==2 && del_ops_count < op_limits->del_ops_limit){
 
             pthread_mutex_lock(&mutex_lock);
             Delete(rand_val,head);
             pthread_mutex_unlock(&mutex_lock);
 
-            atomic_fetch_add(&(op_limits->del_ops_count),1);
-            atomic_fetch_add(&(op_limits->total_ops_count),1);
+            del_ops_count++;
+            total_ops_count++;
         }
-
-    };
-    
-    
-};
+    }
+       
+}
 
 int test_mutex (int n, int m, float m_insert_frac, float m_member_frac, float m_delete_frac, int thread_count){
 
         operation_limits op_limits;
         struct list_node_s* head = NULL;
-        op_limits.ins_ops_limit = (int) ceil(m * m_insert_frac);
-        op_limits.mem_ops_limit = (int) ceil(m * m_member_frac);
-        op_limits.del_ops_limit = (int) ceil(m * m_delete_frac);
-        op_limits.total_ops_limit = m;
 
-        atomic_init(&(op_limits.ins_ops_count), 0);
-        atomic_init(&(op_limits.mem_ops_count), 0);
-        atomic_init(&(op_limits.del_ops_count), 0);
-        atomic_init(&(op_limits.total_ops_count), 0);
+        //Per thread operations limit
+        op_limits.ins_ops_limit = (int) ceil(m * m_insert_frac/thread_count);
+        op_limits.mem_ops_limit = (int) ceil(m * m_member_frac/thread_count);
+        op_limits.del_ops_limit = (int) ceil(m * m_delete_frac/thread_count);
+        op_limits.total_ops_limit = (int) (m/thread_count);
+
 
 
         populate_list(&head,n); // Populate linked-list with n nodes

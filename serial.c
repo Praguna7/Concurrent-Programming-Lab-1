@@ -33,18 +33,18 @@ int test_serial(int n, int m, float m_insert_frac, float m_member_frac, float m_
         operation = rand()%3;
         rand_val = rand()%MAX_VALUE;
 
-        if(operation==0 && ins_ops_count<ins_ops_limit){
+        if(operation==0 && ins_ops_count<=ins_ops_limit){
             Insert(rand_val,&head);
             ins_ops_count++;
             total_ops_count++;
         }
-        else if(operation==1 && mem_ops_count<mem_ops_limit){
+        else if(operation==1 && mem_ops_count<=mem_ops_limit){
             Member(rand_val,head);
             mem_ops_count++;
             total_ops_count++;
             
         }
-        else if (operation==2 && del_ops_count<del_ops_limit){
+        else if (operation==2 && del_ops_count<=del_ops_limit){
             Delete(rand_val,&head);
             del_ops_count++;
             total_ops_count++;

@@ -1,7 +1,6 @@
 #ifndef RW_LOCK
 #define RW_LOCK
 
-#include <stdatomic.h>
 #include <pthread.h>
 #include <stdio.h>
 #include "linked_list.h"

@@ -1,7 +1,6 @@
 #ifndef MAIN
 #define MAIN
 
-#include <stdatomic.h>
 #include <pthread.h>
 #include <stdio.h>
 #include "linked_list.h"
@@ -13,11 +12,6 @@ typedef struct {
     int mem_ops_limit;
     int del_ops_limit;
     int total_ops_limit;
-
-    atomic_int ins_ops_count;
-    atomic_int mem_ops_count;
-    atomic_int del_ops_count;
-    atomic_int total_ops_count;
 
 } operation_limits;
 

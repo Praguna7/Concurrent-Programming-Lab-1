@@ -1,7 +1,6 @@
 #ifndef MUTEX
 #define MUTEX
 
-#include <stdatomic.h>
 #include <pthread.h>
 #include <stdio.h>
 #include "linked_list.h"

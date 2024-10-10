@@ -4,6 +4,7 @@
 #include "mutex.h"
 #include "serial.h"
 #include <stdio.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include <math.h>
 #include <sys/time.h>
@@ -40,8 +41,24 @@ int calculate_required_iterations(float stddev, float mean) {
     return pow((CONFIDENCE_LEVEL * stddev) / (DESIRED_ACCURACY * mean), 2);
 }
 
+// Printing helper function
+void print_f_c(FILE *fptr, const char *format, ...) {
+    va_list args;
+    
+    // Print to console
+    va_start(args, format);
+    vprintf(format, args);
+    va_end(args);
+
+    // Print to file
+    va_start(args, format);
+    vfprintf(fptr, format, args);
+    va_end(args);
+}
+
+
 // Function to run each case with specific proportions and print the results
-int run_case(float m_ins, float m_mem, float m_del, int iterations, int n, int m, const char* case_name, int find_iteration_count) {
+int run_case(float m_ins, float m_mem, float m_del, int iterations, int n, int m, const char* case_name, int find_iteration_count,FILE *fptr) {
     int ser_times[iterations];
     int mut_times_t1[iterations];
     int mut_times_t2[iterations];
@@ -52,9 +69,9 @@ int run_case(float m_ins, float m_mem, float m_del, int iterations, int n, int m
     int rw_times_t2[iterations];
     int rw_times_t4[iterations];
     int rw_times_t8[iterations];
-
+    print_f_c(fptr,"\nIterating %s: ",case_name);
     for (int i = 0; i < iterations; i++) {
-        printf("%i",i);
+        print_f_c(fptr,"%i",i);
         ser_times[i] = test_serial(n, m, m_ins, m_mem, m_del);
 
         mut_times_t1[i] = test_mutex(n, m, m_ins, m_mem, m_del, 1);
@@ -67,7 +84,7 @@ int run_case(float m_ins, float m_mem, float m_del, int iterations, int n, int m
         rw_times_t4[i] = test_rwlock(n, m, m_ins, m_mem, m_del, 4);
         rw_times_t8[i] = test_rwlock(n, m, m_ins, m_mem, m_del, 8);
     }
-    printf("\n");
+    print_f_c(fptr,"\n");
 
     // Calculate means and standard deviations
     float mean_ser = calculate_mean(ser_times, iterations);
@@ -93,89 +110,90 @@ int run_case(float m_ins, float m_mem, float m_del, int iterations, int n, int m
     float stddev_rw_t8 = calculate_stddev(rw_times_t8, iterations, mean_rw_t8);
 
     int requred_min_iterations = 0;
+
     if(find_iteration_count ==1 ){
         int num_it;
         num_it = calculate_required_iterations(stddev_ser,mean_ser);
         if(num_it>requred_min_iterations){
             requred_min_iterations = num_it;
-            printf("\n iterations %i \n",num_it);
+            // print_f_c(fptr,"\n iterations %i \n",num_it);
         }
         num_it = calculate_required_iterations(stddev_mut_t1,mean_mut_t1);
         if(num_it>requred_min_iterations){
             requred_min_iterations = num_it;
-            printf("\n iterations %i \n",num_it);
+            // print_f_c(fptr,"\n iterations %i \n",num_it);
         }
         num_it  = calculate_required_iterations(stddev_mut_t2,mean_mut_t2);
         if(num_it>requred_min_iterations){
             requred_min_iterations = num_it;
-            printf("\n iterations %i \n",num_it);
+            // print_f_c(fptr,"\n iterations %i \n",num_it);
         }
         num_it = calculate_required_iterations(stddev_mut_t4,mean_mut_t4);
         if(num_it>requred_min_iterations){
             requred_min_iterations = num_it;
-            printf("\n iterations %i \n",num_it);
+            // print_f_c(fptr,"\n iterations %i \n",num_it);
         }
         num_it = calculate_required_iterations(stddev_mut_t8,mean_mut_t8);
         if(num_it>requred_min_iterations){
             requred_min_iterations = num_it;
-            printf("\n iterations %i \n",num_it);
+            // print_f_c(fptr,"\n iterations %i \n",num_it);
         }
         num_it  = calculate_required_iterations(stddev_rw_t1,mean_rw_t1);
         if(num_it>requred_min_iterations){
             requred_min_iterations = num_it;
-            printf("\n iterations %i \n",num_it);
+            // print_f_c(fptr,"\n iterations %i \n",num_it);
         }
         num_it = calculate_required_iterations(stddev_rw_t2,mean_rw_t2);
         if(num_it>requred_min_iterations){
             requred_min_iterations = num_it;
-            printf("\n iterations %i \n",num_it);
+            // print_f_c(fptr,"\n iterations %i \n",num_it);
         }
         num_it = calculate_required_iterations(stddev_rw_t4,mean_rw_t4);
         if(num_it>requred_min_iterations){
             requred_min_iterations = num_it;
-            printf("\n iterations %i \n",num_it);
+            // print_f_c(fptr,"\n iterations %i \n",num_it);
         }
         num_it = calculate_required_iterations(stddev_rw_t8,mean_rw_t8);
         if(num_it>requred_min_iterations){
             requred_min_iterations = num_it;
-            printf("\n iterations %i \n",num_it);
+            // print_f_c(fptr,"\n iterations %i \n",num_it);
         }
         return requred_min_iterations;
 
     }
     else{
          // Print case details
-        printf("-------------------------\n");
-        printf("--------- %s --------\n", case_name);
-        printf("-------------------------\n");
-        printf("Insert Proportion: %.2f\n", m_ins);
-        printf("Member Proportion: %.2f\n", m_mem);
-        printf("Delete Proportion: %.2f\n", m_del);
-        printf("-------------------------\n");
+        print_f_c(fptr,"-------------------------\n");
+        print_f_c(fptr,"--------- %s --------\n", case_name);
+        print_f_c(fptr,"-------------------------\n");
+        print_f_c(fptr,"Insert Proportion: %.2f\n", m_ins);
+        print_f_c(fptr,"Member Proportion: %.2f\n", m_mem);
+        print_f_c(fptr,"Delete Proportion: %.2f\n", m_del);
+        print_f_c(fptr,"-------------------------\n");
 
         // Print results for the current case
-        printf("\nResults for %s:\n", case_name);
-        printf("+---------+-----------+-------------+-------------+\n");
-        printf("| Threads | Type      |  Mean (us)  | Stddev (us) |\n");
-        printf("+---------+-----------+-------------+-------------+\n");
-        printf("|    -    | Serial    | %11.2f | %11.2f |\n", mean_ser, stddev_ser);
-        printf("+---------+-----------+-------------+-------------+\n");
+        print_f_c(fptr,"\nResults for %s:\n", case_name);
+        print_f_c(fptr,"+---------+-----------+-------------+-------------+\n");
+        print_f_c(fptr,"| Threads | Type      |  Mean (us)  | Stddev (us) |\n");
+        print_f_c(fptr,"+---------+-----------+-------------+-------------+\n");
+        print_f_c(fptr,"|    1    | Serial    | %11.2f | %11.2f |\n", mean_ser, stddev_ser);
+        print_f_c(fptr,"+---------+-----------+-------------+-------------+\n");
 
-        printf("|    1    | Mutex     | %11.2f | %11.2f |\n", mean_mut_t1, stddev_mut_t1);
-        printf("|    1    | RWLock    | %11.2f | %11.2f |\n", mean_rw_t1, stddev_rw_t1);
-        printf("+---------+-----------+-------------+-------------+\n");
+        print_f_c(fptr,"|    1    | Mutex     | %11.2f | %11.2f |\n", mean_mut_t1, stddev_mut_t1);
+        print_f_c(fptr,"|    1    | RWLock    | %11.2f | %11.2f |\n", mean_rw_t1, stddev_rw_t1);
+        print_f_c(fptr,"+---------+-----------+-------------+-------------+\n");
 
-        printf("|    2    | Mutex     | %11.2f | %11.2f |\n", mean_mut_t2, stddev_mut_t2);
-        printf("|    2    | RWLock    | %11.2f | %11.2f |\n", mean_rw_t2, stddev_rw_t2);
-        printf("+---------+-----------+-------------+-------------+\n");
+        print_f_c(fptr,"|    2    | Mutex     | %11.2f | %11.2f |\n", mean_mut_t2, stddev_mut_t2);
+        print_f_c(fptr,"|    2    | RWLock    | %11.2f | %11.2f |\n", mean_rw_t2, stddev_rw_t2);
+        print_f_c(fptr,"+---------+-----------+-------------+-------------+\n");
 
-        printf("|    4    | Mutex     | %11.2f | %11.2f |\n", mean_mut_t4, stddev_mut_t4);
-        printf("|    4    | RWLock    | %11.2f | %11.2f |\n", mean_rw_t4, stddev_rw_t4);
-        printf("+---------+-----------+-------------+-------------+\n");
+        print_f_c(fptr,"|    4    | Mutex     | %11.2f | %11.2f |\n", mean_mut_t4, stddev_mut_t4);
+        print_f_c(fptr,"|    4    | RWLock    | %11.2f | %11.2f |\n", mean_rw_t4, stddev_rw_t4);
+        print_f_c(fptr,"+---------+-----------+-------------+-------------+\n");
 
-        printf("|    8    | Mutex     | %11.2f | %11.2f |\n", mean_mut_t8, stddev_mut_t8);
-        printf("|    8    | RWLock    | %11.2f | %11.2f |\n", mean_rw_t8, stddev_rw_t8);
-        printf("+---------+-----------+-------------+-------------+\n");
+        print_f_c(fptr,"|    8    | Mutex     | %11.2f | %11.2f |\n", mean_mut_t8, stddev_mut_t8);
+        print_f_c(fptr,"|    8    | RWLock    | %11.2f | %11.2f |\n", mean_rw_t8, stddev_rw_t8);
+        print_f_c(fptr,"+---------+-----------+-------------+-------------+\n");
         return 0;
     }
    }
@@ -184,28 +202,33 @@ int main() {
     int n = 1000;
     int m = 10000;
     int iterations=0;
-    int initial_iterations=40;
+    int initial_iterations=100;
     int it_max;
+    FILE *fptr = fopen("results.txt", "w");
+
     
-    printf("Finding required number of iterations by running %i iterations initially per each case.\n",initial_iterations);
-
-    if (it_max = run_case(0.99, 0.005, 0.005, initial_iterations, n, m, "Case 1",1)>iterations){
+    print_f_c(fptr,"Finding required number of iterations by running %i iterations initially per each case.\n",initial_iterations);
+    it_max = run_case(0.99, 0.005, 0.005, initial_iterations, n, m, "Case 1",1,fptr);
+    if (it_max>iterations){
             iterations = it_max;
     }
-    if (it_max = run_case(0.90, 0.05, 0.05, initial_iterations, n, m, "Case 2",1)>iterations){
+    it_max = run_case(0.90, 0.05, 0.05, initial_iterations, n, m, "Case 2",1,fptr);
+    if (it_max>iterations){
             iterations = it_max;
     }
-    if (it_max = run_case(0.50, 0.25, 0.25, initial_iterations, n, m, "Case 3",1)>iterations){
+    it_max = run_case(0.50, 0.25, 0.25, initial_iterations, n, m, "Case 3",1,fptr);
+    if (it_max>iterations){
             iterations = it_max;
     }
 
-    printf("\nMinimum required number of iterations is %i.\n",iterations);
+    // print_f_c(fptr,"\nMinimum required number of iterations is %i.\n",iterations);
+    
+    // print_f_c(fptr,"\nRunning each case with  %i iterations.\n",iterations);
 
+    // run_case(0.99, 0.005, 0.005, iterations, n, m, "Case 1",0,fptr);
+    // run_case(0.90, 0.05, 0.05, iterations, n, m, "Case 2",0,fptr);
+    // run_case(0.50, 0.25, 0.25, iterations, n, m, "Case 3",0,fptr);
 
-    // Iterate through 3 cases, print case details along with results
-    run_case(0.99, 0.005, 0.005, iterations, n, m, "Case 1",0);
-    run_case(0.90, 0.05, 0.05, iterations, n, m, "Case 2",0);
-    run_case(0.50, 0.25, 0.25, iterations, n, m, "Case 3",0);
-
+    fclose(fptr);
     return 0;
 }
