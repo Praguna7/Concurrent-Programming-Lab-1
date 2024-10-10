@@ -3,6 +3,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
+#include "main.h"
+
+
 
 // Node structure for the linked list
 struct list_node_s {
@@ -23,5 +27,7 @@ int Delete(int value, struct list_node_s** head_pp);
 
 // Print the entire linked list
 void PrintList(struct list_node_s* head);
+
+void populate_list(struct list_node_s ** head, int n);
 
 #endif 

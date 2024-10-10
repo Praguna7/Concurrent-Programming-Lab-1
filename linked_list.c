@@ -80,7 +80,18 @@ void PrintList(struct list_node_s* head) {
         curr = curr->next;
     }
     printf("NULL\n");
-}
+};
+
+void populate_list(struct list_node_s ** head, int n){
+    srand(time(0));
+    int count = 0;
+    while(count<n){
+        int value = rand() % MAX_VALUE;
+        if(Insert(value,head)){
+            count++;
+        }
+    }
+};
 
 // int main() {
 //     struct list_node_s* head = NULL; // Initialize head as NULL
