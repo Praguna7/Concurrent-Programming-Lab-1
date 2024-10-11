@@ -18,6 +18,8 @@ typedef struct {
 typedef struct {
     struct list_node_s **head;
     operation_limits *op_limits;
+    int *operations;
+    int ops_per_thread;
 } thread_args;
 
 #endif

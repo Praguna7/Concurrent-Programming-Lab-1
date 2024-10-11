@@ -58,7 +58,7 @@ void print_f_c(FILE *fptr, const char *format, ...) {
 
 
 // Function to run each case with specific proportions and print the results
-int run_case(float m_ins, float m_mem, float m_del, int iterations, int n, int m, const char* case_name, int find_iteration_count,FILE *fptr) {
+int run_case(float m_mem, float m_ins, float m_del, int iterations, int n, int m, const char* case_name, int find_iteration_count,FILE *fptr) {
     int ser_times[iterations];
     int mut_times_t1[iterations];
     int mut_times_t2[iterations];
@@ -72,17 +72,17 @@ int run_case(float m_ins, float m_mem, float m_del, int iterations, int n, int m
     print_f_c(fptr,"\nIterating %s: ",case_name);
     for (int i = 0; i < iterations; i++) {
         print_f_c(fptr,"%i",i);
-        ser_times[i] = test_serial(n, m, m_ins, m_mem, m_del);
+        ser_times[i] = test_serial(n, m, m_mem, m_ins, m_del);
 
-        mut_times_t1[i] = test_mutex(n, m, m_ins, m_mem, m_del, 1);
-        mut_times_t2[i] = test_mutex(n, m, m_ins, m_mem, m_del, 2);
-        mut_times_t4[i] = test_mutex(n, m, m_ins, m_mem, m_del, 4);
-        mut_times_t8[i] = test_mutex(n, m, m_ins, m_mem, m_del, 8);
+        mut_times_t1[i] = test_mutex(n, m, m_mem, m_ins, m_del, 1);
+        mut_times_t2[i] = test_mutex(n, m, m_mem, m_ins, m_del, 2);
+        mut_times_t4[i] = test_mutex(n, m, m_mem, m_ins, m_del, 4);
+        mut_times_t8[i] = test_mutex(n, m, m_mem,m_ins, m_del, 8);
 
-        rw_times_t1[i] = test_rwlock(n, m, m_ins, m_mem, m_del, 1);
-        rw_times_t2[i] = test_rwlock(n, m, m_ins, m_mem, m_del, 2);
-        rw_times_t4[i] = test_rwlock(n, m, m_ins, m_mem, m_del, 4);
-        rw_times_t8[i] = test_rwlock(n, m, m_ins, m_mem, m_del, 8);
+        rw_times_t1[i] = test_rwlock(n, m, m_mem, m_ins, m_del, 1);
+        rw_times_t2[i] = test_rwlock(n, m, m_mem, m_ins, m_del, 2);
+        rw_times_t4[i] = test_rwlock(n, m, m_mem, m_ins, m_del, 4);
+        rw_times_t8[i] = test_rwlock(n, m, m_mem, m_ins, m_del, 8);
     }
     print_f_c(fptr,"\n");
 
@@ -166,8 +166,8 @@ int run_case(float m_ins, float m_mem, float m_del, int iterations, int n, int m
         print_f_c(fptr,"-------------------------\n");
         print_f_c(fptr,"--------- %s --------\n", case_name);
         print_f_c(fptr,"-------------------------\n");
-        print_f_c(fptr,"Insert Proportion: %.2f\n", m_ins);
         print_f_c(fptr,"Member Proportion: %.2f\n", m_mem);
+        print_f_c(fptr,"Insert Proportion: %.2f\n", m_ins);
         print_f_c(fptr,"Delete Proportion: %.2f\n", m_del);
         print_f_c(fptr,"-------------------------\n");
 
@@ -198,15 +198,11 @@ int run_case(float m_ins, float m_mem, float m_del, int iterations, int n, int m
     }
    }
 
-int main() {
-    int n = 1000;
-    int m = 10000;
-    int iterations=0;
-    int initial_iterations=100;
+int calculate_minimum_required_iterations(int initial_iterations,int n,int m){
     int it_max;
-    FILE *fptr = fopen("results.txt", "w");
+    int iterations=1;
+    FILE *fptr = fopen("find_required_iterations.txt", "w");
 
-    
     print_f_c(fptr,"Finding required number of iterations by running %i iterations initially per each case.\n",initial_iterations);
     it_max = run_case(0.99, 0.005, 0.005, initial_iterations, n, m, "Case 1",1,fptr);
     if (it_max>iterations){
@@ -220,14 +216,25 @@ int main() {
     if (it_max>iterations){
             iterations = it_max;
     }
+    print_f_c(fptr,"\nMinimum required number of iterations is %i.\n",iterations);
+    fclose(fptr);
+    return iterations;
+}
 
-    // print_f_c(fptr,"\nMinimum required number of iterations is %i.\n",iterations);
+int main() {
+    int n = 1000;
+    int m = 10000;
+    int iterations=64;
+    int initial_iterations=100;
+    FILE *fptr = fopen("results.txt", "w");
     
-    // print_f_c(fptr,"\nRunning each case with  %i iterations.\n",iterations);
+    // iterations = calculate_minimum_required_iterations(initial_iterations,n,m);
+    
+    print_f_c(fptr,"\nRunning each case with  %i iterations.\n",iterations);
 
-    // run_case(0.99, 0.005, 0.005, iterations, n, m, "Case 1",0,fptr);
-    // run_case(0.90, 0.05, 0.05, iterations, n, m, "Case 2",0,fptr);
-    // run_case(0.50, 0.25, 0.25, iterations, n, m, "Case 3",0,fptr);
+    run_case(0.99, 0.005, 0.005, iterations, n, m, "Case 1",0,fptr);
+    run_case(0.90, 0.05, 0.05, iterations, n, m, "Case 2",0,fptr);
+    run_case(0.50, 0.25, 0.25, iterations, n, m, "Case 3",0,fptr);
 
     fclose(fptr);
     return 0;
