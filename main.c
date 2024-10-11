@@ -69,9 +69,9 @@ int run_case(float m_mem, float m_ins, float m_del, int iterations, int n, int m
     int rw_times_t2[iterations];
     int rw_times_t4[iterations];
     int rw_times_t8[iterations];
-    print_f_c(fptr,"\nIterating %s: ",case_name);
+    // printf("\nIterating %s: ",case_name);
     for (int i = 0; i < iterations; i++) {
-        print_f_c(fptr,"%i",i);
+        // print(fptr,"%i",i);
         ser_times[i] = test_serial(n, m, m_mem, m_ins, m_del);
 
         mut_times_t1[i] = test_mutex(n, m, m_mem, m_ins, m_del, 1);
@@ -224,7 +224,7 @@ int calculate_minimum_required_iterations(int initial_iterations,int n,int m){
 int main() {
     int n = 1000;
     int m = 10000;
-    int iterations=64;
+    int iterations=238;
     int initial_iterations=100;
     FILE *fptr = fopen("results.txt", "w");
     

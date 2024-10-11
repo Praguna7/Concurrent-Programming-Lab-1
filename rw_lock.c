@@ -28,7 +28,7 @@ void thread_func_rw(void* args){
 
     
     while (1){
-        operation = rand()%3;  
+        operation = rand()%3; 
         rand_val = rand()%MAX_VALUE;
 
         if (operation== 0 && mem_ops_count < op_limits->mem_ops_limit) {
@@ -53,7 +53,7 @@ void thread_func_rw(void* args){
 
             del_ops_count++;
         }
-        if (ins_ops_count >= op_limits->ins_ops_limit && 
+        else if (ins_ops_count >= op_limits->ins_ops_limit && 
             mem_ops_count >= op_limits->mem_ops_limit && 
             del_ops_count >= op_limits->del_ops_limit) {
             break;  // All operations completed

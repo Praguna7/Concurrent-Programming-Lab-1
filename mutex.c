@@ -56,7 +56,7 @@ void thread_func_mutex(void* args){
 
             del_ops_count++;
         }
-        if (ins_ops_count >= op_limits->ins_ops_limit && 
+        else if (ins_ops_count >= op_limits->ins_ops_limit && 
             mem_ops_count >= op_limits->mem_ops_limit && 
             del_ops_count >= op_limits->del_ops_limit) {
             break;  // All operations completed
