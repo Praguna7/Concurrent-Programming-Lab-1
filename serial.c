@@ -6,7 +6,7 @@
 #include <sys/time.h>
 
 
-int test_serial(int n, int m, float m_insert_frac, float m_member_frac, float m_delete_frac){
+int test_serial(int n, int m,float m_member_frac, float m_insert_frac, float m_delete_frac){
 
     struct list_node_s* head = NULL;
     populate_list(&head,n);
@@ -28,33 +28,35 @@ int test_serial(int n, int m, float m_insert_frac, float m_member_frac, float m_
     struct timeval start;
     struct timeval stop;
     gettimeofday(&start, NULL); 
-    while(total_ops_count<m){
+    while(1){
         // printf("tot ops %i",total_ops_count);
         operation = rand()%3;
         rand_val = rand()%MAX_VALUE;
 
-        if(operation==0 && ins_ops_count<=ins_ops_limit){
-            Insert(rand_val,&head);
-            ins_ops_count++;
-            total_ops_count++;
-        }
-        else if(operation==1 && mem_ops_count<=mem_ops_limit){
+        if(operation==0 && mem_ops_count<mem_ops_limit){
             Member(rand_val,head);
             mem_ops_count++;
-            total_ops_count++;
             
         }
-        else if (operation==2 && del_ops_count<=del_ops_limit){
+        else if(operation==1 && ins_ops_count<ins_ops_limit){
+            Insert(rand_val,&head);
+            ins_ops_count++;
+        }
+        else if (operation==2 && del_ops_count<del_ops_limit){
             Delete(rand_val,&head);
             del_ops_count++;
-            total_ops_count++;
+        }
+        if (ins_ops_count >= ins_ops_limit && 
+            mem_ops_count >= mem_ops_limit && 
+            del_ops_count >= del_ops_limit) {
+            break;  // All operations completed
         }
     }
 
     gettimeofday(&stop, NULL); 
     unsigned long time = (stop.tv_sec - start.tv_sec) * 1000000 + stop.tv_usec - start.tv_usec;
     // printf("Serial program took %lu us\n", time); 
-
+    free_list(head);
     return time;
     
 };
