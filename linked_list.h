@@ -30,4 +30,6 @@ void PrintList(struct list_node_s* head);
 
 void populate_list(struct list_node_s ** head, int n);
 
+void free_list(struct list_node_s* head);
+
 #endif 

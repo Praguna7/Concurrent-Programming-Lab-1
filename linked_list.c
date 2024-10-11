@@ -93,6 +93,17 @@ void populate_list(struct list_node_s ** head, int n){
     }
 };
 
+void free_list(struct list_node_s* head) {  // Fixed the type for head
+    struct list_node_s* current = head;
+    struct list_node_s* next;
+
+    while (current != NULL) {
+        next = current->next;
+        free(current);
+        current = next;
+    }
+}
+
 // int main() {
 //     struct list_node_s* head = NULL; // Initialize head as NULL
 
